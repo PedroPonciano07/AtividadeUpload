@@ -8,41 +8,41 @@ const produtoController = {
      * @description Cadastra um novo produto no sistema
      */
     criarProduto: async (req, res) => {
-    try {
+        try {
 
-        const {
-            idCategoria,
-            nomeProduto,
-            valorProduto
-        } = req.body;
+            const {
+                idCategoria,
+                nomeProduto,
+                valorProduto
+            } = req.body;
 
-        if (!idCategoria || !nomeProduto || !valorProduto) {
-            return res.status(400).json({
-                erro: "Campos obrigatórios não foram preenchidos"
+            if (!idCategoria || !nomeProduto || !valorProduto) {
+                return res.status(400).json({
+                    erro: "Campos obrigatórios não foram preenchidos"
+                });
+            }
+
+            const imagem = req.file ? req.file.filename : null;
+
+            const result = await produtoModel.inserirProduto(
+                idCategoria,
+                nomeProduto,
+                valorProduto,
+                imagem
+            );
+
+            return res.status(200).json({
+                mensagem: "Produto cadastrado com sucesso!",
+                idProduto: result.insertId
+            });
+
+        } catch (error) {
+            console.error("Erro ao criar produto:", error);
+            return res.status(500).json({
+                erro: "Erro interno ao cadastrar produto"
             });
         }
-
-        const imagem = req.file ? req.file.filename : null;
-
-        const result = await produtoModel.inserirProduto(
-            idCategoria,
-            nomeProduto,
-            valorProduto,
-            imagem
-        );
-
-        return res.status(201).json({
-            mensagem: "Produto cadastrado com sucesso!",
-            idProduto: result.insertId
-        });
-
-    } catch (error) {
-        console.error("Erro ao criar produto:", error);
-        return res.status(500).json({
-            erro: "Erro interno ao cadastrar produto"
-        });
-    }
-},
+    },
     listarProdutos: async (req, res) => {
         try {
             const { idProduto } = req.query;
@@ -51,7 +51,7 @@ const produtoController = {
                 const produto = await produtoModel.buscarUm(idProduto);
 
                 if (!produto || produto.length === 0) {
-                    return res.status(404).json({
+                    return res.status(400).json({
                         erro: "Produto não encontrado"
                     });
                 }
@@ -89,7 +89,7 @@ const produtoController = {
             const produto = await produtoModel.buscarUm(idProduto);
 
             if (!produto || produto.length !== 1) {
-                return res.status(404).json({
+                return res.status(400).json({
                     erro: "Produto não encontrado"
                 });
             }
@@ -149,7 +149,7 @@ const produtoController = {
             const produto = await produtoModel.buscarUm(idProduto);
 
             if (!produto || produto.length !== 1) {
-                return res.status(404).json({
+                return res.status(400).json({
                     erro: "Produto não encontrado"
                 });
             }
@@ -167,7 +167,7 @@ const produtoController = {
             });
         }
     },
-    
+
     /**
      * @async
      * @function criarCategoria
@@ -195,7 +195,7 @@ const produtoController = {
 
             const result = await categoriaModel.inserirCategoria(descricaoCategoria);
 
-            return res.status(201).json({
+            return res.status(200).json({
                 mensagem: "Categoria cadastrada com sucesso!",
                 idCategoria: result.insertId
             });
@@ -207,7 +207,7 @@ const produtoController = {
             });
         }
     },
-   
+
     /**
      * @async
      * @function listarCategorias
@@ -229,7 +229,7 @@ const produtoController = {
                 const categoria = await categoriaModel.buscarUm(idCategoria);
 
                 if (!categoria || categoria.length === 0) {
-                    return res.status(404).json({
+                    return res.status(400).json({
                         erro: "Categoria não encontrada"
                     });
                 }
